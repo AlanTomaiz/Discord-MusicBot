@@ -1,4 +1,5 @@
 const { MessageEmbed } = require("discord.js");
+const { version } = require('../../package.json');
 
 module.exports = {
   name: 'help',
@@ -18,7 +19,7 @@ module.exports = {
       .setColor('#0099ff')
       .setDescription(`${Commands.join("\n")}
 
-      Discord Music Bot Versão: v1
+      Discord Music Bot Versão: v${version}
       [GitHub](https://github.com/AlanTomaiz/Discord-MusicBot)`)
       .setTimestamp();
 

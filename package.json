@@ -1,6 +1,6 @@
 {
   "name": "discord-bot",
-  "version": "1.0.0",
+  "version": "1.5.0",
   "description": "Very simple discord music bot with the discord.js with Song Name playing.",
   "main": "index.js",
   "license": "MIT",
