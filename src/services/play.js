@@ -1,12 +1,13 @@
 const ytdl = require("ytdl-core-discord");
 
-module.exports = async (client, interaction, song) => {
+module.exports = async (interaction, song) => {
+  const { client } = interaction;
   const queue = client.queue.get(interaction.guild.id);
 
   if (!song) {
     setTimeout(() => {
-      queue.channel.leave();
-      client.sendSuccess(interaction.channel, `Deixando o canal de voz!`);
+      queue.voiceChannel.leave();
+      client.sendSuccess(interaction.channel, `Playlist finalizada, deixando o canal de voz!`);
     }, 1000);
 
     return client.queue.delete(interaction.guild.id);
@@ -19,24 +20,30 @@ module.exports = async (client, interaction, song) => {
     stream = await ytdl(song.url, { highWaterMark: 1 << 25 });
   } catch (err) {
     client.log(err.message);
+
+    client.sendError(
+      interaction.channel,
+      `❌ Falha ao tocar **${song.title}**`
+    );
+
+    queue.songs.shift();
+    module.exports(interaction, queue.songs[0]);
   }
 
   queue.connection.on("disconnect", () => client.queue.delete(interaction.guild.id));
 
-  const dispatcher = queue.connection;
-  dispatcher.play(stream, { type: streamType });
+  queue.connection
+    .play(stream, { type: streamType })
+    .on("finish", () => {
+      queue.songs.shift();
+      module.exports(interaction, queue.songs[0]);
+    })
+    .on("error", (err) => {
+      client.log(err.message);
 
-  dispatcher.on("finish", () => {
-    queue.songs.shift();
-    module.exports.play(queue.songs[0], message);
-  });
-
-  dispatcher.on("error", (err) => {
-    client.log(err.message);
-
-    queue.songs.shift();
-    module.exports.play(queue.songs[0], message);
-  });
+      queue.songs.shift();
+      module.exports(interaction, queue.songs[0]);
+    });
 
   client.sendSuccess(
     interaction.channel,

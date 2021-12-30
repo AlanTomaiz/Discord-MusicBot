@@ -14,14 +14,13 @@ module.exports = {
     );
 
     let Embed = new MessageEmbed()
-      .setAuthor(`Commands of ${client.user.username}`, client.botconfig.IconURL)
+      .setAuthor(`${client.user.username} ajuda`, client.botconfig.IconURL)
       .setColor('#0099ff')
       .setDescription(`${Commands.join("\n")}
 
-      Discord Music Bot Version: v1
-      [GitHub](https://github.com/AlanTomaiz)`)
-      .setTimestamp()
-      .setFooter('Have a nice day!');
+      Discord Music Bot Versão: v1
+      [GitHub](https://github.com/AlanTomaiz/Discord-MusicBot)`)
+      .setTimestamp();
 
     message.channel.send(Embed);
   }

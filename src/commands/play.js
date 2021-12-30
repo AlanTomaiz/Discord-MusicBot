@@ -1,5 +1,9 @@
+const YouTube = require('simple-youtube-api');
 const ytdl = require("ytdl-core");
 const play = require("../services/play");
+
+const { YoutubeSecret } = require('../../botconfig');
+const youtube = new YouTube(YoutubeSecret);
 
 module.exports = {
   name: 'play',
@@ -34,12 +38,22 @@ module.exports = {
       );
     }
 
+    let songInfo;
     const videoPattern = /^(https?:\/\/)?(www\.)?(m\.|music\.)?(youtube\.com|youtu\.?be)\/.+$/gi;
     const urlValid = videoPattern.test(args[0]);
-    if (!urlValid) {
+    if (urlValid) {
+      // URL from youtube
+      songInfo = await ytdl.getInfo(SearchString).catch(() => {});
+    } else {
+      // Search on youtube
+      const results = await youtube.searchVideos(SearchString, 1, { part: "id" });
+      songInfo = await ytdl.getInfo(results[0].url);
+    }
+
+    if (!songInfo) {
       return client.sendError(
         interaction.channel,
-        '❌ | **Você deve informar uma URL do youtube.**'
+        '❌ | **Áudio não encontrado.**'
       );
     }
 
@@ -51,14 +65,6 @@ module.exports = {
       volume: 5,
       playing: true
     };
-
-    const songInfo = await ytdl.getInfo(SearchString).catch(() => {});
-    if (!songInfo) {
-      return client.sendError(
-        interaction.channel,
-        '❌ | **Áudio não encontrado.**'
-      );
-    }
 
     const song = {
       title: songInfo.videoDetails.title,
@@ -80,7 +86,7 @@ module.exports = {
 
     try {
       queueConstruct.connection = await voiceChannel.join();
-      play(client, interaction, queueConstruct.songs[0]);
+      play(interaction, queueConstruct.songs[0]);
     } catch (error) {
       client.log(error.message);
 
