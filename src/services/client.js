@@ -8,11 +8,12 @@ class DiscordBot extends Client {
     super({ intents: [Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS] });
 
     this.commands = new Collection();
-    // this.connections = new Map();
+    this.queue = new Map();
     // this.SongsPlayed = 0;
 
     this.botconfig = require('../../botconfig');
     this.logger = new Logger('Logs.log');
+    this.PREFIX = this.botconfig.DefaultPrefix;
 
     this.LoadCommands();
     this.LoadEvents();
@@ -62,16 +63,22 @@ class DiscordBot extends Client {
 
   sendError(Channel, Error) {
     const Embed = new MessageEmbed()
-      .setColor('#c0392b')
+      .setColor('#e74c3c')
       .setDescription(Error);
 
-    Channel.send({ embeds: [Embed] });
+    Channel.send(Embed);
+  }
+
+  sendSuccess(Channel, Error) {
+    const Embed = new MessageEmbed()
+      .setColor('#9b59b6')
+      .setDescription(Error);
+
+    Channel.send(Embed);
   }
 
   build() {
     this.login(this.botconfig.Token);
-
-    // this.log(this.commands);
   }
 }
 
